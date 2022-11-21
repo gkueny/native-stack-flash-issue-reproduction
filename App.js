@@ -1,113 +1,98 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+/* eslint-disable react-native/no-inline-styles */
 
- import React from 'react';
- import type {Node} from 'react';
- import {
-   SafeAreaView,
-   ScrollView,
-   StatusBar,
-   StyleSheet,
-   Text,
-   useColorScheme,
-   View,
- } from 'react-native';
- 
- import {
-   Colors,
-   DebugInstructions,
-   Header,
-   LearnMoreLinks,
-   ReloadInstructions,
- } from 'react-native/Libraries/NewAppScreen';
- 
- const Section = ({children, title}): Node => {
-   const isDarkMode = useColorScheme() === 'dark';
-   return (
-     <View style={styles.sectionContainer}>
-       <Text
-         style={[
-           styles.sectionTitle,
-           {
-             color: isDarkMode ? Colors.white : Colors.black,
-           },
-         ]}>
-         {title}
-       </Text>
-       <Text
-         style={[
-           styles.sectionDescription,
-           {
-             color: isDarkMode ? Colors.light : Colors.dark,
-           },
-         ]}>
-         {children}
-       </Text>
-     </View>
-   );
- };
- 
- const App: () => Node = () => {
-   const isDarkMode = useColorScheme() === 'dark';
- 
-   const backgroundStyle = {
-     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-   };
- 
-   return (
-     <SafeAreaView style={backgroundStyle}>
-       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-       <ScrollView
-         contentInsetAdjustmentBehavior="automatic"
-         style={backgroundStyle}>
-         <Header />
-         <View
-           style={{
-             backgroundColor: isDarkMode ? Colors.black : Colors.white,
-           }}>
-           <Section title="Step One">
-             Edit <Text style={styles.highlight}>App.js</Text> to change this
-             screen and then come back to see your edits.
-           </Section>
-           <Section title="See Your Changes">
-             <ReloadInstructions />
-           </Section>
-           <Section title="Debug">
-             <DebugInstructions />
-           </Section>
-           <Section title="Learn More">
-             Read the docs to discover what to do next:
-           </Section>
-           <LearnMoreLinks />
-         </View>
-       </ScrollView>
-     </SafeAreaView>
-   );
- };
- 
- const styles = StyleSheet.create({
-   sectionContainer: {
-     marginTop: 32,
-     paddingHorizontal: 24,
-   },
-   sectionTitle: {
-     fontSize: 24,
-     fontWeight: '600',
-   },
-   sectionDescription: {
-     marginTop: 8,
-     fontSize: 18,
-     fontWeight: '400',
-   },
-   highlight: {
-     fontWeight: '700',
-   },
- });
- 
- export default App;
- 
+import React, {useEffect, useState} from 'react';
+import {Text, View} from 'react-native';
+
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
+import {NavigationContainer} from '@react-navigation/native';
+
+const TestBottomTabBar = createBottomTabNavigator();
+const TestNativeStack1 = createNativeStackNavigator();
+const TestNativeStack2 = createNativeStackNavigator();
+
+const TestScreen1 = () => {
+  const [t, setT] = useState(110);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setT(lastT => lastT + 1);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#000',
+      }}>
+      {Array.from({length: 100}).map((e, idx) => (
+        <Text style={{color: '#fff'}} key={idx}>
+          T{idx}: {t}
+        </Text>
+      ))}
+    </View>
+  );
+};
+
+const TestScreen2 = () => {
+  const [t, setT] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setT(lastT => lastT + 1);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#000',
+      }}>
+      {Array.from({length: 100}).map((e, idx) => (
+        <Text style={{color: 'red'}} key={idx}>
+          T{idx}: {t}
+        </Text>
+      ))}
+    </View>
+  );
+};
+const TestScreenTab1 = () => {
+  return (
+    <TestNativeStack1.Navigator initialRouteName="screen1a">
+      <TestNativeStack1.Screen name="screen1a" component={TestScreen1} />
+      <TestNativeStack1.Screen name="screen1b" component={TestScreen2} />
+    </TestNativeStack1.Navigator>
+  );
+};
+
+const TestScreenTab2 = () => {
+  return (
+    <TestNativeStack2.Navigator initialRouteName="screen2a">
+      <TestNativeStack2.Screen name="screen2a" component={TestScreen2} />
+      <TestNativeStack2.Screen name="screen2b" component={TestScreen1} />
+    </TestNativeStack2.Navigator>
+  );
+};
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <TestBottomTabBar.Navigator
+        initialRouteName="tab1"
+        screenOptions={{
+          unmountOnBlur: true,
+        }}>
+        <TestBottomTabBar.Screen name="tab1" component={TestScreenTab1} />
+        <TestBottomTabBar.Screen name="tab2" component={TestScreenTab2} />
+      </TestBottomTabBar.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default App;
